@@ -6,8 +6,9 @@ from .exceptions import *
 LIST_OF_WORDS = ['test', 'python', 'rmotr']
 
 def _check_if_game_won(game):
-    if game['masked_word'] == game['answer_word']:
+    if game['masked_word'].lower() == game['answer_word'].lower():
         raise GameWonException
+        
 def _check_if_game_lost(game):
     game['remaining_misses'] -= 1
     if game['remaining_misses'] == 0:
@@ -20,16 +21,18 @@ def _get_random_word(list_of_words):
         return random.choice(list_of_words)
 
 def _mask_word(word):
+    if not word:
+        raise InvalidWordException()
     return '*' * len(word)
 
 
 def _uncover_word(answer_word, masked_word, character):
     if not answer_word or not masked_word:
-        raise InvalidWordException
+        raise InvalidWordException()
     elif len(character) > 1:
-        raise InvalidGuessedLetterException
+        raise InvalidGuessedLetterException()
     elif len(answer_word) != len(masked_word):
-        raise InvalidWordException
+        raise InvalidWordException()
     
     index = 0
     new_masked = ''
@@ -51,7 +54,6 @@ def guess_letter(game, letter):
         game['masked_word'] = _uncover_word(game['answer_word'], game['masked_word'], letter)
     _check_if_game_won(game)
     _check_if_game_lost(game)
-    raise InvalidGuessedLetterException()
         
         
         
@@ -61,13 +63,12 @@ def start_new_game(list_of_words=None, number_of_guesses=5):
         list_of_words = LIST_OF_WORDS
 
     word_to_guess = _get_random_word(list_of_words)
-    print(word_to_guess)
     masked_word = _mask_word(word_to_guess)
-    print(masked_word)
     game = {
         'answer_word': word_to_guess,
         'masked_word': masked_word,
         'previous_guesses': [],
         'remaining_misses': number_of_guesses,
     }
+    
     return game
